@@ -172,6 +172,7 @@
                                                 <a href="/home/beli/<?= $k['id'] ?>" class="action quickview"><i class="icon-size-fullscreen"></i></a>
                                             </div>
                                             <form action="/home/insert_cart" method="POST">
+                                                <?= csrf_field(); ?>
                                                 <input type="hidden" name="nama" value="<?= $k['nama_barang'] ?>" id="nama">
                                                 <input type="hidden" name="id" value="<?= $k['id'] ?>" id="id">
                                                 <input type="hidden" name="harga" value="<?= $k['harga'] ?>" id="harga">

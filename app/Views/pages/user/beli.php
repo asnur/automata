@@ -43,6 +43,7 @@
                         <?= $barang['deskripsi'] ?>
                     </p>
                     <form action="/home/insert_cart" method="POST">
+                        <?= csrf_field(); ?>
                         <input type="hidden" name="nama" value="<?= $barang['nama_barang'] ?>" id="nama">
                         <input type="hidden" name="id" value="<?= $barang['id'] ?>" id="id">
                         <input type="hidden" name="harga" value="<?= $barang['harga'] ?>" id="harga">

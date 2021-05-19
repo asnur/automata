@@ -7,5 +7,5 @@ use CodeIgniter\Model;
 class User extends Model
 {
     protected $table = "user";
-    protected $allowedFields = ['nama', 'username', 'password', 'level'];
+    protected $allowedFields = ['nama', 'username', 'password', 'perusahaan', 'email', 'alamat', 'no_hp', 'foto', 'bukti', 'level', 'izin'];
 }

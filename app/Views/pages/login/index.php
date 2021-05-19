@@ -36,6 +36,7 @@
     <!-- <h1>Hello, world!</h1> -->
     <div class="card mx-auto login">
         <form action="/login/cek_login" method="POST">
+            <?= csrf_field(); ?>
             <div class="card-body">
                 <div class="text-center mt-2 mb-4">
                     <img src="/assets/images/icons/logo.png" style="width: 50px; height:50px;"><br>
@@ -46,6 +47,9 @@
                 <label><b>Password</b></label>
                 <input type="password" name="password" class="form-control" placeholder="Masukan password"><br>
                 <button type="submit" class="btn btn-warning text-white form-control mb-3 text-bold">Sign In</button>
+                <div class="text-center">
+                    <a class="text-muted" href="/login/register"> Tidak Punya Akun?</a>
+                </div>
             </div>
         </form>
     </div>

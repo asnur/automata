@@ -109,6 +109,7 @@
                             <a href="/home/beli/<?= $b['id'] ?>" class="action quickview" data-link-action="quickview"><i class="icon-size-fullscreen"></i></a>
                         </div>
                         <form action="/home/insert_cart" method="POST">
+                            <?= csrf_field(); ?>
                             <input type="hidden" name="nama" value="<?= $b['nama_barang'] ?>" id="nama">
                             <input type="hidden" name="id" value="<?= $b['id'] ?>" id="id">
                             <input type="hidden" name="harga" value="<?= $b['harga'] ?>" id="harga">

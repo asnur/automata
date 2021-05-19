@@ -71,6 +71,7 @@
                                 <a href="javascript:void(0)" class="header-action-btn search-btn"><i class="icon-magnifier"></i></a>
                                 <div class="dropdown_search">
                                     <form class="action-form" action="#">
+                                        <?= csrf_field(); ?>
                                         <input class="form-control" placeholder="Enter your search key" type="text">
                                         <button class="submit" type="submit"><i class="icon-magnifier"></i></button>
                                     </form>
@@ -132,6 +133,7 @@
                                 <a href="javascript:void(0)" class="header-action-btn search-btn"><i class="icon-magnifier"></i></a>
                                 <div class="dropdown_search">
                                     <form class="action-form" action="#">
+                                        <?= csrf_field(); ?>
                                         <input class="form-control" placeholder="Enter your search key" type="text">
                                         <button class="submit" type="submit"><i class="icon-magnifier"></i></button>
                                     </form>
@@ -547,6 +549,13 @@
         //Sweet Alert
         const flashdata = $('.flash-data').data('flashdata');
         if (flashdata == 'Anda Berhasil Login') {
+            Swal.fire(
+                'Berhasil!',
+                flashdata,
+                'success'
+            );
+        }
+        if (flashdata == 'Anda Berhasil Register Silahkan Tunggu Konfirmasi dari Admin & Akan di Infokan Melalui Email yang tercantum') {
             Swal.fire(
                 'Berhasil!',
                 flashdata,

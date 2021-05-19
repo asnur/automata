@@ -39,4 +39,28 @@ class Pesanan extends Model
     {
         return $this->db->table('pesanan')->join('pesanan_barang', 'pesanan.id=pesanan_barang.id_pesanan')->join('user', 'pesanan.id_user=user.id')->where(['user.id' => $id_user, 'pesanan.kategori' => 'sewa', 'pesanan.id' => $id_pesanan])->join('barang', 'pesanan_barang.id_barang=barang.id')->get()->getResultArray();
     }
+
+    //Pemasukan Penjualan
+
+    public function pemasukan_penjualan($month = '')
+    {
+        $year = date('Y');
+        if ($month == '') {
+            $monthNow = date('m');
+            return $this->db->query("SELECT SUM(total) AS total FROM pesanan WHERE YEAR(waktu) = $year AND MONTH(waktu) = $monthNow AND kategori = 'jual'")->getResultArray();
+        } else {
+            return $this->db->query("SELECT SUM(total) AS total FROM pesanan WHERE YEAR(waktu) = $year AND MONTH(waktu) = $month AND kategori = 'jual'")->getResultArray();
+        }
+    }
+
+    public function pemasukan_penyewaan($month = '')
+    {
+        $year = date('Y');
+        if ($month == '') {
+            $monthNow = date('m');
+            return $this->db->query("SELECT SUM(total) AS total FROM pesanan WHERE YEAR(waktu) = $year AND MONTH(waktu) = $monthNow AND kategori = 'sewa'")->getResultArray();
+        } else {
+            return $this->db->query("SELECT SUM(total) AS total FROM pesanan WHERE YEAR(waktu) = $year AND MONTH(waktu) = $month AND kategori = 'sewa'")->getResultArray();
+        }
+    }
 }
