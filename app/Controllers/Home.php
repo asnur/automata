@@ -423,7 +423,7 @@ class Home extends BaseController
 			]);
 		}
 		$result = json_decode($this->request->getVar('result_data'), true);
-		$this->pesanan->insert_data($this->id_pesanan, $_SESSION['user'][0]['id'], substr($result['gross_amount'], 0, -3), 'sewa');
+		$this->pesanan->insert_data($this->id_pesanan, $_SESSION['user'][0]['id'], substr($result['gross_amount'], 0, -3), 'sewa', $result['transaction_status']);
 		$this->cartSewa->destroy();
 		session()->setFlashdata('pesan', 'Silahkan Selesaikan Pembayaran');
 		return redirect()->to('/home/riwayat_sewa');

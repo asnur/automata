@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
     <link rel="stylesheet" href="/plugins/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="/assets/DataTables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
@@ -25,6 +26,27 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css">
+    <style>
+        .buttons-html5 {
+            background-color: #FBC740;
+            border-color: #ffffff;
+        }
+
+        .buttons-print {
+            background-color: #FBC740;
+            border-color: #ffffff;
+        }
+
+        .buttons-collection {
+            background-color: #FBC740;
+            border-color: #ffffff;
+        }
+
+        .buttons-columnVisiblity>span {
+            color: #000000;
+        }
+    </style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -149,7 +171,7 @@
     <script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
     <script src="/plugins/moment/moment.min.js"></script>
-    <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
     <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
     <script src="/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
@@ -166,6 +188,18 @@
     <script src="/plugins/slicker/slick.js"></script>
     <script src="https://cdn.datatables.net/datetime/1.0.3/js/dataTables.dateTime.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+    <script src="/assets/DataTables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
+    <script src="/assets/DataTables/DataTables-1.10.18/js/dataTables.bootstrap4.min.js"></script>
+
+    <script src="/assets/DataTables/Buttons-1.5.6/js/dataTables.buttons.min.js"></script>
+    <script src="/assets/DataTables/Buttons-1.5.6/js/buttons.bootstrap4.min.js"></script>
+    <script src="/assets/DataTables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="/assets/DataTables/pdfmake-0.1.36/pdfmake.min.js"></script>
+    <script src="/assets/DataTables/pdfmake-0.1.36/vfs_fonts.js"></script>
+    <script src="/assets/DataTables/Buttons-1.5.6/js/buttons.html5.min.js"></script>
+    <script src="/assets/DataTables/Buttons-1.5.6/js/buttons.print.min.js"></script>
+    <script src="/assets/DataTables/Buttons-1.5.6/js/buttons.colVis.min.js"></script>
+
     <script>
         function detail_pembelian(iduser, idpesanan, total) {
             $.ajax({
@@ -195,6 +229,39 @@
                 }
             });
         }
+
+        function detail_penyewaan(iduser, idpesanan, total) {
+            $.ajax({
+                type: 'GET',
+                url: `/api/penyewaan/${iduser}/${idpesanan}`,
+                success: function(result) {
+                    console.log(result);
+                    $('#detail_barang').html('');
+                    let item = result;
+                    let total_harga = 0;
+                    $.each(item, (i, data) => {
+                        $('#detail_barang').append(`
+                            <tr>
+                                <td class="text-center" style="vertical-align: middle;"><img src="/assets/images/item/${data.foto}" style="width: 150px; height: 150px"></td>
+                                <td class="text-center" style="vertical-align: middle;">${data.jumlah_barang}</td>
+                                <td class="text-center" style="vertical-align: middle;">${data.jumlah_hari}</td>
+                                <td class="text-center" style="vertical-align: middle;">${data.peminjaman}</td>
+                                <td class="text-center" style="vertical-align: middle;">${data.pengembalian}</td>
+                                <td class="text-center" style="vertical-align: middle;">Rp. ${numeral(data.harga_barang).format('0,0')}</td>
+                                <td class="text-center" style="vertical-align: middle;">Rp. ${numeral(data.jumlah_barang * data.harga_barang * data.jumlah_hari).format('0,0')}</td>
+                            </tr>
+                        `);
+                    });
+                    $('#detail_barang').append(`
+                        <tr>
+                            <td class="text-left" colspan="6"><b>Total Harga</b></td>
+                            <td class="text-center"><b>Rp. ${numeral(total).format('0,0')}</b></td>
+                        </tr>
+                    `)
+                }
+            });
+        }
+
         $('.gallery-isi').slick({
             slidesToShow: 3,
             slidesToScroll: 1,
@@ -291,7 +358,36 @@
                 changeMonth: true,
                 changeYear: true
             });
-            var table = $('#tablePenjualan').DataTable();
+            var table = $('#tablePenjualan').DataTable({
+                "responsive": true,
+                "autoWidth": false,
+                "lengthChange": false,
+                "dom": 'Bfrtip',
+                "colReorder": true,
+                "buttons": [{
+                    extend: 'copy',
+                    messageTop: 'Rekapitulasi Data',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }, {
+                    extend: 'excel',
+                    messageTop: 'Rekapitulasi Data',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }, {
+                    extend: 'print',
+                    messageTop: 'Rekapitulasi Data',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }, 'colvis'],
+                "columnDefs": [{
+                    targets: -1,
+                    visible: false
+                }]
+            });
 
             // Event listener to the two range filtering inputs to redraw on input
             $('#min, #max').change(function() {
@@ -413,6 +509,13 @@
             );
         }
         if (flashdata == 'Data Penjualan Berhasil diHapus') {
+            Swal.fire(
+                'Berhasil!',
+                flashdata,
+                'success'
+            );
+        }
+        if (flashdata == 'Data Penyewaan Berhasil diHapus') {
             Swal.fire(
                 'Berhasil!',
                 flashdata,

@@ -45,6 +45,11 @@ class Pesanan extends Model
         return $this->db->table('user')->join('pesanan', 'pesanan.id_user=user.id')->where(['pesanan.kategori' => 'jual'])->get()->getResultArray();
     }
 
+    public function riwayat_penyewaan_admin()
+    {
+        return $this->db->table('user')->join('pesanan', 'pesanan.id_user=user.id')->where(['pesanan.kategori' => 'sewa'])->get()->getResultArray();
+    }
+
     //Pemasukan Penjualan
 
     public function pemasukan_penjualan($month = '')

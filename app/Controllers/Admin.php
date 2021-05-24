@@ -627,4 +627,27 @@ class Admin extends BaseController
         session()->setFlashdata('pesan', 'Data Penjualan Berhasil diHapus');
         return redirect()->to('/admin/penjualan');
     }
+
+    public function penyewaan()
+    {
+        if (!isset($_SESSION['admin'])) {
+            return redirect()->to('/login');
+        }
+        $data = [
+            'riwayat_penyewaan' => $this->pesanan->riwayat_penyewaan_admin()
+        ];
+
+        return view('pages/admin/penyewaan', $data);
+    }
+
+    public function hapus_penyewaan($id = '')
+    {
+        if (!isset($_SESSION['admin'])) {
+            return redirect()->to('/login');
+        }
+        $this->pesanan->delete($id);
+        $this->pesananBarang->where(['id_pesanan' => $id])->delete();
+        session()->setFlashdata('pesan', 'Data Penyewaan Berhasil diHapus');
+        return redirect()->to('/admin/penyewaan');
+    }
 }
