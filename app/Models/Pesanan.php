@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class Pesanan extends Model
 {
     protected $table = "pesanan";
-    protected $allowedFields = ['id_user', 'total', 'kategori', 'status'];
+    protected $allowedFields = ['id_user', 'sales', 'total', 'kategori', 'status'];
     protected $db;
 
     public function __construct()
@@ -15,9 +15,9 @@ class Pesanan extends Model
         $this->db = \Config\Database::connect();
     }
 
-    public function insert_data($id_pesanan = '', $id_user = '', $total = '', $kategori = '', $status = '')
+    public function insert_data($id_pesanan = '', $id_user = '', $sales = '', $total = '', $kategori = '', $status = '')
     {
-        return $this->db->query("INSERT INTO pesanan (`id`, `id_user`, `total`, `kategori`, `status`) VALUES ('$id_pesanan', '$id_user', '$total', '$kategori', '$status')");
+        return $this->db->query("INSERT INTO pesanan (`id`, `id_user`, `sales`, `total`, `kategori`, `status`) VALUES ('$id_pesanan', '$id_user', '$sales', '$total', '$kategori', '$status')");
     }
 
     public function riwayat_pembelian($id_user)

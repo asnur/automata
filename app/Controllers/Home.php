@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\Barang;
 
+use App\Models\User;
+
 use App\Models\Pesanan;
 
 use App\Models\PesananBarang;
@@ -24,6 +26,7 @@ class Home extends BaseController
 	protected $pesananBarang;
 	protected $id_pesanan;
 	protected $fotoBarang;
+	protected $user;
 
 	public function __construct()
 	{
@@ -38,6 +41,7 @@ class Home extends BaseController
 		$this->id_pesanan = rand();
 		$this->fotoBarang = new FotoBarang();
 		$keranjang = $this->cart->contents();
+		$this->user = new User();
 	}
 
 	public function index()
@@ -50,9 +54,161 @@ class Home extends BaseController
 			'keranjang_sewa' => $this->cartSewa->contents(),
 			'total_item' => count($this->cart->contents()),
 			'total_item_sewa' => count($this->cartSewa->contents()),
+			'sales' => $this->user->where(['level' => 'sales'])->findAll(),
 			'gallery' => $this->fotoBarang
 		];
 		return view('pages/user/home', $data);
+	}
+
+	public function search()
+	{
+		$keyword = htmlspecialchars($this->request->getVar('keyword'));
+		// dd($this->barang->where(['kategori' => 'jual'])->like('nama_barang', $keyword)->findAll());
+		if (!$keyword) {
+			session()->setFlashdata('pesan', 'Keyword Wajib di Isi');
+			return redirect()->to('/');
+		} else {
+			$data = [
+				'barang_jual' => $this->barang->where(['kategori' => 'jual'])->like('nama_barang', $keyword)->findAll(),
+				'barang_sewa' => $this->barang->where(['kategori' => 'sewa'])->like('nama_barang', $keyword)->findAll(),
+				'keranjang' => $this->cart->contents(),
+				'keranjang_sewa' => $this->cartSewa->contents(),
+				'total_item' => count($this->cart->contents()),
+				'total_item_sewa' => count($this->cartSewa->contents()),
+				'sales' => $this->user->where(['level' => 'sales'])->findAll()
+			];
+
+			return view('pages/user/pencarian', $data);
+		}
+	}
+
+	public function akun()
+	{
+		if (!isset($_SESSION['user'])) {
+			return redirect()->to('/login');
+		}
+
+		$id = $_SESSION['user'][0]['id'];
+
+		$data = [
+			'pelanggan' => $this->user->find($id),
+			'validation' => \Config\Services::validation(),
+			'keranjang' => $this->cart->contents(),
+			'keranjang_sewa' => $this->cartSewa->contents(),
+			'total_item' => count($this->cart->contents()),
+			'total_item_sewa' => count($this->cartSewa->contents()),
+			'sales' => $this->user->where(['level' => 'sales'])->findAll()
+		];
+
+		return view('pages/user/akun', $data);
+	}
+
+	public function save_akun()
+	{
+		if (!isset($_SESSION['user'])) {
+			return redirect()->to('/login');
+		}
+
+		$id = $_SESSION['user'][0]['id'];
+
+		$dataUser = $this->user->find($id);
+
+		if ($dataUser['username'] == $this->request->getVar('username')) {
+			$rules = 'required';
+		} else {
+			$rules = 'required|is_unique[user.username]';
+		}
+
+		if (!$this->validate([
+			'nama' => [
+				'rules' => 'required',
+				'errors' => [
+					'requried' => '{field} Tidak Boleh Kosong'
+				]
+			],
+			'username' => [
+				'rules' => $rules,
+				'errors' => [
+					'required' => '{field} Tidak Boleh Kosong',
+					'is_unique' => '{field} Sudah Digunakan'
+				]
+			],
+			'perusahaan' => [
+				'rules' => 'required',
+				'errors' => [
+					'required' => '{field} Tidak Boleh Kosong'
+				]
+			],
+			'email' => [
+				'rules' => 'required',
+				'errors' => [
+					'required' => '{field} Tidak Boleh Kosong'
+				]
+			],
+			'email' => [
+				'rules' => 'required',
+				'errors' => [
+					'required' => '{field} Tidak Boleh Kosong'
+				]
+			],
+			'alamat_perusahaan' => [
+				'rules' => 'required',
+				'errors' => [
+					'required' => '{field} Tidak Boleh Kosong'
+				]
+			],
+			'no_hp' => [
+				'rules' => 'required',
+				'errors' => [
+					'required' => '{field} Tidak Boleh Kosong'
+				]
+			],
+			'foto' => [
+				'rules' => 'max_size[foto,1024]|is_image[foto]|mime_in[foto,image/jpg,image/jpeg,image/png]',
+				'errors' => [
+					'max_size' => 'Ukuran Melebihi 1MB',
+					'is_image' => 'File yang anda masukan bukan Gambar',
+					'mime_in' => 'File yang anda masukan bukan Gambar'
+				]
+			]
+		])) {
+			return redirect()->to('/home/akun')->withInput();
+		}
+
+		$nama = htmlspecialchars($this->request->getVar('nama'));
+		$username = htmlspecialchars($this->request->getVar('username'));
+		$email = htmlspecialchars($this->request->getVar('email'));
+		$password = md5(htmlspecialchars($this->request->getVar('password')));
+		$perusahaan = htmlspecialchars($this->request->getVar('perusahaan'));
+		$alamat_perusahaan = htmlspecialchars($this->request->getVar('alamat_perusahaan'));
+		$no_hp = htmlspecialchars($this->request->getVar('no_hp'));
+		$foto = $this->request->getFile('foto');
+		$namaFotoLama = $dataUser['foto'];
+		if ($foto->getError() == 4) {
+			$namaFoto = $namaFotoLama;
+		} else {
+			$namaFoto = $foto->getName();
+			$foto->move('dist/img/user/');
+			(empty($dataUser['foto']) ? '' : unlink('dist/img/user/' . $namaFotoLama));
+		}
+
+
+		$this->user->save([
+			'id' => $id,
+			'nama' => $nama,
+			'username' => $username,
+			'password' => $password,
+			'perusahaan' => $perusahaan,
+			'email' => $email,
+			'alamat' => $alamat_perusahaan,
+			'no_hp' => $no_hp,
+			'foto' => $namaFoto,
+			'level' => 'user',
+			'izin' => 1
+		]);
+
+		session()->setFlashdata('pesan', 'Data Pelanggan Berhasil diUbah');
+		return redirect()->to('/');
 	}
 
 	public function keranjang()
@@ -65,7 +221,8 @@ class Home extends BaseController
 			'keranjang_sewa' => $this->cartSewa->contents(),
 			'total_item' => count($this->cart->contents()),
 			'total_item_sewa' => count($this->cartSewa->contents()),
-			'barang' => $this->barang->where(['kategori' => 'jual'])->findAll()
+			'barang' => $this->barang->where(['kategori' => 'jual'])->findAll(),
+			'sales' => $this->user->where(['level' => 'sales'])->findAll(),
 		];
 		return view('pages/user/keranjang', $data);
 	}
@@ -80,7 +237,8 @@ class Home extends BaseController
 			'keranjang_sewa' => $this->cartSewa->contents(),
 			'total_item' => count($this->cart->contents()),
 			'total_item_sewa' => count($this->cartSewa->contents()),
-			'barang' => $this->barang->where(['kategori' => 'sewa'])->findAll()
+			'barang' => $this->barang->where(['kategori' => 'sewa'])->findAll(),
+			'sales' => $this->user->where(['level' => 'sales'])->findAll(),
 		];
 		return view('pages/user/keranjang_sewa', $data);
 	}
@@ -96,6 +254,14 @@ class Home extends BaseController
 		$jumlah = $this->request->getVar('jumlah');
 		$foto = $this->request->getVar('foto');
 		// d($id, $nama, $harga, $jumlah, $foto);
+
+		$dataBarang = $this->barang->find($id);
+
+		if ($jumlah >= $dataBarang['stok']) {
+			session()->setFlashdata('pesan', 'Stok Tidak Cukup');
+			return redirect()->to('/home/beli/' . $id);
+		}
+
 		$this->cart->insert(array(
 			'id'      => $id,
 			'image'	  => $foto,
@@ -121,6 +287,14 @@ class Home extends BaseController
 		$pengembalian = date_create($this->request->getVar('pengembalian'));
 		$interval = date_diff($peminjaman, $pengembalian);
 		$jumlah_hari = $interval->days;
+
+		$dataBarang = $this->barang->find($id);
+
+		if ($jumlah >= $dataBarang['stok']) {
+			session()->setFlashdata('pesan', 'Stok Tidak Cukup');
+			return redirect()->to('/home/sewa/' . $id);
+		}
+
 		$this->cartSewa->insert(array(
 			'id'      => $id,
 			'image'	  => $foto,
@@ -265,10 +439,16 @@ class Home extends BaseController
 				'jumlah_barang' => $item['quantity'],
 				'subtotal' => $item['subtotal']
 			]);
+
+			$dataBarang = $this->barang->find($item['id']);
+			$this->barang->save([
+				'id' => $item['id'],
+				'stok' => $dataBarang['stok'] - $item['quantity']
+			]);
 		}
 		$this->cart->destroy();
 		$result = json_decode($this->request->getVar('result_data'), true);
-		$this->pesanan->insert_data($this->id_pesanan, $_SESSION['user'][0]['id'], substr($result['gross_amount'], 0, -3), 'jual', $result['transaction_status']);
+		$this->pesanan->insert_data($this->id_pesanan, $_SESSION['user'][0]['id'], $this->request->getVar('sales'), substr($result['gross_amount'], 0, -3), 'jual', $result['transaction_status']);
 		session()->setFlashdata('pesan', 'Silahkan Selesaikan Pembayaran');
 		return redirect()->to('/home/riwayat_pembelian');
 	}
@@ -284,7 +464,8 @@ class Home extends BaseController
 			'keranjang' => $this->cart->contents(),
 			'keranjang_sewa' => $this->cartSewa->contents(),
 			'total_item' => count($this->cart->contents()),
-			'total_item_sewa' => count($this->cartSewa->contents())
+			'total_item_sewa' => count($this->cartSewa->contents()),
+			'sales' => $this->user->where(['level' => 'sales'])->findAll(),
 		];
 
 		return view('pages/user/riwayat_pembelian', $data);
@@ -325,7 +506,8 @@ class Home extends BaseController
 			'keranjang' => $this->cart->contents(),
 			'keranjang_sewa' => $this->cartSewa->contents(),
 			'total_item' => count($this->cart->contents()),
-			'total_item_sewa' => count($this->cartSewa->contents())
+			'total_item_sewa' => count($this->cartSewa->contents()),
+			'sales' => $this->user->where(['level' => 'sales'])->findAll()
 		];
 
 		return view('pages/user/riwayat_sewa', $data);
@@ -421,9 +603,15 @@ class Home extends BaseController
 				'pengembalian' => $item['pengembalian'],
 				'jumlah_hari' => $item['jumlah_hari']
 			]);
+
+			$dataBarang = $this->barang->find($item['id']);
+			$this->barang->save([
+				'id' => $item['id'],
+				'stok' => $dataBarang['stok'] - $item['quantity']
+			]);
 		}
 		$result = json_decode($this->request->getVar('result_data'), true);
-		$this->pesanan->insert_data($this->id_pesanan, $_SESSION['user'][0]['id'], substr($result['gross_amount'], 0, -3), 'sewa', $result['transaction_status']);
+		$this->pesanan->insert_data($this->id_pesanan, $_SESSION['user'][0]['id'], $this->request->getVar('sales'), substr($result['gross_amount'], 0, -3), 'sewa', $result['transaction_status']);
 		$this->cartSewa->destroy();
 		session()->setFlashdata('pesan', 'Silahkan Selesaikan Pembayaran');
 		return redirect()->to('/home/riwayat_sewa');
@@ -438,7 +626,8 @@ class Home extends BaseController
 			'keranjang_sewa' => $this->cartSewa->contents(),
 			'total_item' => count($this->cart->contents()),
 			'total_item_sewa' => count($this->cartSewa->contents()),
-			'foto_barang' => $this->fotoBarang->where(['id_barang' => $id])->findAll()
+			'foto_barang' => $this->fotoBarang->where(['id_barang' => $id])->findAll(),
+			'sales' => $this->user->where(['level' => 'sales'])->findAll()
 		];
 
 		return view('pages/user/beli', $data);
@@ -453,7 +642,8 @@ class Home extends BaseController
 			'keranjang_sewa' => $this->cartSewa->contents(),
 			'total_item' => count($this->cart->contents()),
 			'total_item_sewa' => count($this->cartSewa->contents()),
-			'foto_barang' => $this->fotoBarang->where(['id_barang' => $id])->findAll()
+			'foto_barang' => $this->fotoBarang->where(['id_barang' => $id])->findAll(),
+			'sales' => $this->user->where(['level' => 'sales'])->findAll()
 		];
 
 		return view('pages/user/sewa', $data);

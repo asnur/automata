@@ -47,6 +47,7 @@
                                     <tr>
                                         <th>Nama</th>
                                         <th>Waktu</th>
+                                        <th>Sales</th>
                                         <th>Status</th>
                                         <th>Total</th>
                                         <th>Aksi</th>
@@ -59,6 +60,7 @@
                                         <tr>
                                             <td class="text-center" style="vertical-align: middle;"><?= $k['nama']; ?></td>
                                             <td class="text-center" style="vertical-align: middle;"><?= date('Y/m/d', strtotime($k['waktu'])); ?></td>
+                                            <td class="text-center" style="vertical-align: middle;"><?= $k['sales']; ?></td>
                                             <td class="text-center" style="vertical-align: middle;">
                                                 <?php
                                                 if ($k['status'] == 'pending') {
@@ -89,6 +91,7 @@
                                     <tr>
                                         <th>Nama</th>
                                         <th>Waktu</th>
+                                        <th>Sales</th>
                                         <th>Status</th>
                                         <th>Total</th>
                                         <th>Aksi</th>

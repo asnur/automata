@@ -70,9 +70,9 @@
                             <div class="header_account_list">
                                 <a href="javascript:void(0)" class="header-action-btn search-btn"><i class="icon-magnifier"></i></a>
                                 <div class="dropdown_search">
-                                    <form class="action-form" action="#">
+                                    <form class="action-form" action="/home/search" method="POST">
                                         <?= csrf_field(); ?>
-                                        <input class="form-control" placeholder="Enter your search key" type="text">
+                                        <input class="form-control" name="keyword" placeholder="Enter your search key" type="text">
                                         <button class="submit" type="submit"><i class="icon-magnifier"></i></button>
                                     </form>
                                 </div>
@@ -132,9 +132,9 @@
                             <div class="header_account_list">
                                 <a href="javascript:void(0)" class="header-action-btn search-btn"><i class="icon-magnifier"></i></a>
                                 <div class="dropdown_search">
-                                    <form class="action-form" action="#">
+                                    <form class="action-form" action="/home/search" method="POST">
                                         <?= csrf_field(); ?>
-                                        <input class="form-control" placeholder="Enter your search key" type="text">
+                                        <input class="form-control" name="keyword" placeholder="Enter your search key" type="text">
                                         <button class="submit" type="submit"><i class="icon-magnifier"></i></button>
                                     </form>
                                 </div>
@@ -143,15 +143,27 @@
                             <div class="header-bottom-set dropdown">
                                 <button class="dropdown-toggle header-action-btn" data-bs-toggle="dropdown"><i class="icon-user"></i></button>
                                 <ul class="dropdown-menu dropdown-menu-right">
-                                    <li><a class="dropdown-item" href="my-account.html">My account</a></li>
-                                    <li><a class="dropdown-item" href="checkout.html">Checkout</a></li>
-                                    <li><a class="dropdown-item" href="login.html">Sign in</a></li>
+                                    <?php
+                                    if (!isset($_SESSION['user'])) {
+                                    ?>
+                                        <li><a class="dropdown-item" href="/login">Sign in</a></li>
+                                    <?php
+                                    } else {
+                                    ?>
+                                        <li><a class="dropdown-item" href="/home/akun">Akun Saya</a></li>
+                                        <li><a class="dropdown-item" href="/home/riwayat_pembelian">Riwayat Pembelian</a></li>
+                                        <li><a class="dropdown-item" href="/home/riwayat_sewa">Riwayat Penyewaan</a></li>
+                                        <li><a class="dropdown-item" href="/login/logout">Sign out</a></li>
+                                    <?php
+                                    }
+                                    ?>
                                 </ul>
                             </div>
                             <!-- Single Wedge End -->
                             <a href="#offcanvas-cart" class="header-action-btn header-action-btn-cart offcanvas-toggle pr-0">
                                 <i class="icon-handbag"></i>
-                                <span class="header-action-num">01</span>
+                                <span class="header-action-num"><?= $total_item ?></span>
+                                <span class="header-action-num-sec"><?= $total_item_sewa ?></span>
                                 <!-- <span class="cart-amount">€30.00</span> -->
                             </a>
                             <a href="#offcanvas-mobile-menu" class="header-action-btn header-action-btn-menu offcanvas-toggle d-lg-none">
@@ -195,14 +207,25 @@
                 <span class="title">Keranjang</span>
                 <button class="offcanvas-close">×</button>
             </div>
+            <div class="alert alert-success" role="alert">
+                Pilih Jenis <b>Keranjang</b> & <b>Sales</b> Anda Terlebih Dahulu!
+            </div>
             <div class="form mb-5">
+                <label>Pilih Keranjang</label>
                 <select id="cart" class="form-control">
                     <option value="belanja">Belanja</option>
                     <option value="sewa">Sewa</option>
                 </select>
-            </div>
-            <div class="alert alert-success" role="alert">
-                Pilih Jenis Keranjang Anda Terlebih Dahulu!
+                <label class="mt-3">Pilih Sales</label>
+                <select id="sales-list" class="form-control" required>
+                    <?php
+                    foreach ($sales as $s) {
+                    ?>
+                        <option value="<?= $s['nama'] ?>"><?= $s['nama'] ?></option>
+                    <?php
+                    }
+                    ?>
+                </select>
             </div>
             <div class="belanja">
                 <div class="body customScroll">
@@ -251,6 +274,7 @@
                         <form id="payment-form" method="post" action="/home/finish">
                             <input type="hidden" name="result_type" id="result-type" value="">
                             <input type="hidden" name="result_data" id="result-data" value="">
+                            <input type="hidden" name="sales" id="sales" value="">
                         </form>
                         <a id="pay-button" class="btn btn-outline-dark current-btn">checkout</a>
                     </div>
@@ -303,6 +327,7 @@
                         <form id="payment-form-sewa" method="post" action="/home/finish_sewa">
                             <input type="hidden" name="result_type" id="result-type-sewa" value="">
                             <input type="hidden" name="result_data" id="result-data-sewa" value="">
+                            <input type="hidden" name="sales" id="sales-sewa" value="">
                         </form>
                         <a id="pay-sewa" class="btn btn-outline-dark current-btn">checkout</a>
                     </div>
@@ -319,92 +344,13 @@
 
             <div class="offcanvas-menu mb-4">
                 <ul>
-                    <li><a href="#"><span class="menu-text">Home</span></a>
-                        <ul class="sub-menu">
-                            <li><a href="index-2.html"><span class="menu-text">Home 1</span></a></li>
-                            <li><a href="index-3.html"><span class="menu-text">Home 2</span></a></li>
-                        </ul>
+                    <li><a href="/">Home</span></a>
+
                     </li>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="#"><span class="menu-text">Shop</span></a>
-                        <ul class="sub-menu">
-                            <li>
-                                <a href="#"><span class="menu-text">Shop Page</span></a>
-                                <ul class="sub-menu">
-                                    <li><a href="shop-3-column.html">Shop 3 Column</a></li>
-                                    <li><a href="shop-4-column.html">Shop 4 Column</a></li>
-                                    <li><a href="shop-left-sidebar.html">Shop Grid Left Sidebar</a></li>
-                                    <li><a href="shop-right-sidebar.html">Shop Grid Right Sidebar</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#"><span class="menu-text">product Details Page</span></a>
-                                <ul class="sub-menu">
-                                    <li><a href="single-product.html">Product Single</a></li>
-                                    <li><a href="single-product-variable.html">Product Variable</a></li>
-                                    <li><a href="single-product-affiliate.html">Product Affiliate</a></li>
-                                    <li><a href="single-product-group.html">Product Group</a></li>
-                                    <li><a href="single-product-tabstyle-2.html">Product Tab 2</a></li>
-                                    <li><a href="single-product-tabstyle-3.html">Product Tab 3</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#"><span class="menu-text">Single Product Page</span></a>
-                                <ul class="sub-menu">
-                                    <li><a href="single-product-slider.html">Product Slider</a></li>
-                                    <li><a href="single-product-gallery-left.html">Product Gallery Left</a>
-                                    </li>
-                                    <li><a href="single-product-gallery-right.html">Product Gallery Right</a>
-                                    </li>
-                                    <li><a href="single-product-sticky-left.html">Product Sticky Left</a></li>
-                                    <li><a href="single-product-sticky-right.html">Product Sticky Right</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#"><span class="menu-text">Other Pages</span></a>
-                                <ul class="sub-menu">
-                                    <li><a href="cart.html">Cart Page</a></li>
-                                    <li><a href="checkout.html">Checkout Page</a></li>
-                                    <li><a href="compare.html">Compare Page</a></li>
-                                    <li><a href="wishlist.html">Wishlist Page</a></li>
-                                    <li><a href="my-account.html">Account Page</a></li>
-                                    <li><a href="login.html">Login & Register Page</a></li>
-                                    <li><a href="empty-cart.html">Empty Cart Page</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="#"><span class="menu-text">Pages</span></a>
-                        <ul class="sub-menu">
-                            <li><a href="404.html">404 Page</a></li>
-                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
-                            <li><a href="faq.html">Faq Page</a></li>
-                            <li><a href="coming-soon.html">Coming Soon Page</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="#"><span class="menu-text">Blog</span></a>
-                        <ul class="sub-menu">
-                            <li><a href="#"><span class="menu-text">Blog Grid</span></a>
-                                <ul class="sub-menu">
-                                    <li><a href="blog-grid-left-sidebar.html">Blog Grid Left Sidebar</a></li>
-                                    <li><a href="blog-grid-right-sidebar.html">Blog Grid Right Sidebar</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="#"><span class="menu-text">Blog List</span></a>
-                                <ul class="sub-menu">
-                                    <li><a href="blog-list-left-sidebar.html">Blog List Left Sidebar</a></li>
-                                    <li><a href="blog-list-right-sidebar.html">Blog List Right Sidebar</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="#"><span class="menu-text">Blog Single</span></a>
-                                <ul class="sub-menu">
-                                    <li><a href="blog-single-left-sidebar.html">Blog Single Left Sidebar</a></li>
-                                    <li><a href="blog-single-right-sidebar.html">Blog Single Right Sidbar</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="/home/#product">Product</a></li>
+                    <li><a href="/home/#project">Project</a>
+                    <li><a href="/home/#about">About</a>
+                    <li><a href="#footer">Contact</a></li>
                 </ul>
             </div>
             <!-- OffCanvas Menu End -->
@@ -516,8 +462,8 @@
     <!-- Global Vendor, plugins JS -->
 
     <!-- Vendor JS -->
-    <!-- <script src="assets/js/vendor/jquery-3.5.1.min.js"></script>
-    <script src="assets/js/vendor/popper.min.js"></script>
+    <!-- <scrip src="assets/js/vendor/jquery-3.5.1.min.js"></scrip>
+    <scrip src="assets/js/vendor/popper.min.js"></scrip>
     <script src="assets/js/vendor/bootstrap.min.js"></script>
     <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
     <script src="assets/js/vendor/modernizr-3.11.2.min.js"></script> -->
@@ -546,6 +492,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     <!-- <script src="/assets/js/script.js"></script> -->
     <script>
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $('#blah').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]); // convert to base64 string
+            }
+        }
+
+        $("#imgInp").change(function() {
+            readURL(this);
+        });
         //Sweet Alert
         const flashdata = $('.flash-data').data('flashdata');
         if (flashdata == 'Anda Berhasil Login') {
@@ -553,6 +514,34 @@
                 'Berhasil!',
                 flashdata,
                 'success'
+            );
+        }
+        if (flashdata == 'Data Pelanggan Berhasil diUbah') {
+            Swal.fire(
+                'Berhasil!',
+                flashdata,
+                'success'
+            );
+        }
+        if (flashdata == 'Anda Gagal Login') {
+            Swal.fire(
+                'Gagal!',
+                flashdata,
+                'error'
+            );
+        }
+        if (flashdata == 'Stok Tidak Cukup') {
+            Swal.fire(
+                'Gagal!',
+                flashdata,
+                'error'
+            );
+        }
+        if (flashdata == 'Keyword Wajib di Isi') {
+            Swal.fire(
+                'Gagal!',
+                flashdata,
+                'error'
             );
         }
         if (flashdata == 'Anda Berhasil Register Silahkan Tunggu Konfirmasi dari Admin & Akan di Infokan Melalui Email yang tercantum') {
@@ -675,6 +664,9 @@
             $('#pay-button').click(function(event) {
                 event.preventDefault();
                 // $(this).attr("disabled", "disabled");
+                var sales = $('#sales-list').val();
+                $('#sales').val(sales);
+                console.log($('#sales').val());
                 $.ajax({
                     type: 'POST',
                     url: '<?= site_url() ?>/home/token',
@@ -720,6 +712,9 @@
             $('#pay-sewa').click(function(event) {
                 event.preventDefault();
                 // $(this).attr("disabled", "disabled");
+                var sales = $('#sales-list').val();
+                $('#sales-sewa').val(sales);
+                console.log($('#sales-sewa').val());
                 $.ajax({
                     type: 'POST',
                     url: '<?= site_url() ?>/home/token_sewa',

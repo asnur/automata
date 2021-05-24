@@ -128,12 +128,6 @@ class Admin extends BaseController
                     'required' => '{field} Tidak Boleh Kosong'
                 ]
             ],
-            'email' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => '{field} Tidak Boleh Kosong'
-                ]
-            ],
             'alamat_perusahaan' => [
                 'rules' => 'required',
                 'errors' => [
@@ -276,7 +270,6 @@ class Admin extends BaseController
         $nama = htmlspecialchars($this->request->getVar('nama'));
         $username = htmlspecialchars($this->request->getVar('username'));
         $email = htmlspecialchars($this->request->getVar('email'));
-        $password = md5(htmlspecialchars($this->request->getVar('password')));
         $perusahaan = htmlspecialchars($this->request->getVar('perusahaan'));
         $alamat_perusahaan = htmlspecialchars($this->request->getVar('alamat_perusahaan'));
         $no_hp = htmlspecialchars($this->request->getVar('no_hp'));
@@ -295,7 +288,6 @@ class Admin extends BaseController
             'id' => $id,
             'nama' => $nama,
             'username' => $username,
-            'password' => $password,
             'perusahaan' => $perusahaan,
             'email' => $email,
             'alamat' => $alamat_perusahaan,
@@ -318,6 +310,211 @@ class Admin extends BaseController
         $this->user->delete($id);
         session()->setFlashdata('pesan', 'Data Pelanggan Berhasil diHapus');
         return redirect()->to('/admin/pelanggan');
+    }
+
+    public function sales()
+    {
+        if (!isset($_SESSION['admin'])) {
+            return redirect()->to('/login');
+        }
+        $data = [
+            'sales' => $this->user->where(['izin' => 1, 'level' => 'sales'])->findAll()
+        ];
+        return view('pages/admin/sales', $data);
+    }
+
+    public function tambah_sales()
+    {
+        if (!isset($_SESSION['admin'])) {
+            return redirect()->to('/login');
+        }
+        $data = [
+            'validation' => \Config\Services::validation()
+        ];
+        return view('pages/admin/tambah/sales', $data);
+    }
+
+    public function save_tambah_sales()
+    {
+        if (!isset($_SESSION['admin'])) {
+            return redirect()->to('/login');
+        }
+        if (!$this->validate([
+            'nama' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{field} Tidak Boleh Kosong'
+                ]
+            ],
+            'username' => [
+                'rules' => 'required|is_unique[user.username]',
+                'errors' => [
+                    'required' => '{field} Tidak Boleh Kosong',
+                    'is_unique' => '{field} Sudah Digunakan'
+                ]
+            ],
+            'password' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{field} Tidak Boleh Kosong'
+                ]
+            ],
+            'email' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{field} Tidak Boleh Kosong'
+                ]
+            ],
+            'no_hp' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{field} Tidak Boleh Kosong'
+                ]
+            ],
+            'foto' => [
+                'rules' => 'max_size[foto,1024]|is_image[foto]|mime_in[foto,image/jpg,image/jpeg,image/png]',
+                'errors' => [
+                    'max_size' => 'Ukuran Melebihi 1MB',
+                    'is_image' => 'File yang anda masukan bukan Gambar',
+                    'mime_in' => 'File yang anda masukan bukan Gambar'
+                ]
+            ]
+        ])) {
+            return redirect()->to('/admin/tambah_pelanggan')->withInput();
+        }
+
+        $nama = htmlspecialchars($this->request->getVar('nama'));
+        $username = htmlspecialchars($this->request->getVar('username'));
+        $email = htmlspecialchars($this->request->getVar('email'));
+        $password = md5(htmlspecialchars($this->request->getVar('password')));
+        $no_hp = htmlspecialchars($this->request->getVar('no_hp'));
+        $foto = $this->request->getFile('foto');
+        if ($foto->getError() == 4) {
+            $namaFoto = '';
+        } else {
+            $namaFoto = $foto->getName();
+            $foto->move('dist/img/user/');
+        }
+
+
+        $this->user->save([
+            'nama' => $nama,
+            'username' => $username,
+            'password' => $password,
+            'email' => $email,
+            'no_hp' => $no_hp,
+            'foto' => $namaFoto,
+            'level' => 'sales',
+            'izin' => 1
+        ]);
+
+        session()->setFlashdata('pesan', 'Data Sales Berhasil diTambahkan');
+        return redirect()->to('/admin/sales');
+    }
+
+    public function edit_sales($id = '')
+    {
+        if (!isset($_SESSION['admin'])) {
+            return redirect()->to('/login');
+        }
+        $data = [
+            'pelanggan' => $this->user->find($id),
+            'validation' => \Config\Services::validation()
+        ];
+        return view('pages/admin/edit/sales', $data);
+    }
+
+    public function save_edit_sales($id = '')
+    {
+        if (!isset($_SESSION['admin'])) {
+            return redirect()->to('/login');
+        }
+
+        $dataUser = $this->user->find($id);
+
+        if ($dataUser['username'] == $this->request->getVar('username')) {
+            $rules = 'required';
+        } else {
+            $rules = 'required|is_unique[user.username]';
+        }
+
+        if (!$this->validate([
+            'nama' => [
+                'rules' => 'required',
+                'errors' => [
+                    'requried' => '{field} Tidak Boleh Kosong'
+                ]
+            ],
+            'username' => [
+                'rules' => $rules,
+                'errors' => [
+                    'required' => '{field} Tidak Boleh Kosong',
+                    'is_unique' => '{field} Sudah Digunakan'
+                ]
+            ],
+            'email' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{field} Tidak Boleh Kosong'
+                ]
+            ],
+            'no_hp' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{field} Tidak Boleh Kosong'
+                ]
+            ],
+            'foto' => [
+                'rules' => 'max_size[foto,1024]|is_image[foto]|mime_in[foto,image/jpg,image/jpeg,image/png]',
+                'errors' => [
+                    'max_size' => 'Ukuran Melebihi 1MB',
+                    'is_image' => 'File yang anda masukan bukan Gambar',
+                    'mime_in' => 'File yang anda masukan bukan Gambar'
+                ]
+            ]
+        ])) {
+            return redirect()->to('/admin/edit_sales/' . $id)->withInput();
+        }
+
+        $nama = htmlspecialchars($this->request->getVar('nama'));
+        $username = htmlspecialchars($this->request->getVar('username'));
+        $email = htmlspecialchars($this->request->getVar('email'));
+        $no_hp = htmlspecialchars($this->request->getVar('no_hp'));
+        $foto = $this->request->getFile('foto');
+        $namaFotoLama = $dataUser['foto'];
+        if ($foto->getError() == 4) {
+            $namaFoto = $namaFotoLama;
+        } else {
+            $namaFoto = $foto->getName();
+            $foto->move('dist/img/user/');
+            (empty($dataUser['foto']) ? '' : unlink('dist/img/user/' . $namaFotoLama));
+        }
+
+
+        $this->user->save([
+            'id' => $id,
+            'nama' => $nama,
+            'username' => $username,
+            'email' => $email,
+            'no_hp' => $no_hp,
+            'foto' => $namaFoto,
+            'level' => 'sales',
+            'izin' => 1
+        ]);
+
+        session()->setFlashdata('pesan', 'Data Sales Berhasil diUbah');
+        return redirect()->to('/admin/sales');
+    }
+
+    public function hapus_sales($id = '')
+    {
+        if (!isset($_SESSION['admin'])) {
+            return redirect()->to('/login');
+        }
+
+        $this->user->delete($id);
+        session()->setFlashdata('pesan', 'Data Sales Berhasil diHapus');
+        return redirect()->to('/admin/sales');
     }
 
     public function pendaftaran()

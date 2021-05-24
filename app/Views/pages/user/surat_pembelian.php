@@ -7,7 +7,7 @@ use Spipu\Html2Pdf\Html2Pdf;
 
 include 'plugins/phpqrcode/qrlib.php';
 $nama = $user[0]['username'] . '-' . $user[0]['id'];
-$cek = 'cek-' . $riwayat_pembelian[0]['id_pesanan'];
+$cek = 'cek-' . $riwayat_pembelian[0]['id_pesanan'] . '-' . $riwayat_pembelian[0]['sales'];
 $tempdir = 'plugins/phpqrcode/temp/';
 // $logopath = 'dist/img/icon.png';
 $codeContents = $user[0]['username'] . '-' . $user[0]['id'];
@@ -94,7 +94,7 @@ Di Terima Oleh
 Pihak Penjual
 <br>
 <img src="plugins/phpqrcode/temp/' . $cek . '.png" style="width: 90px; height: 90px;"><br>
-<p><b><u>PT. Automata Info Nusantara</u></b></p>
+<p><b><u>' . $riwayat_pembelian[0]['sales'] . '</u></b></p>
 </div>
 ';
 

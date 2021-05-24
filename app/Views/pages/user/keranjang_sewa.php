@@ -79,7 +79,7 @@
                         </a>
                         <div class="actions">
                             <a href="wishlist.html" class="action wishlist" title="Wishlist"><i class="icon-heart"></i></a>
-                            <a href="/home/beli/<?= $b['id'] ?>" class="action quickview" data-link-action="quickview"><i class="icon-size-fullscreen"></i></a>
+                            <a href="/home/sewa/<?= $b['id'] ?>" class="action quickview" data-link-action="quickview"><i class="icon-size-fullscreen"></i></a>
                         </div>
                         <a href="/home/sewa/<?= $b['id'] ?>" title="Add To Cart" class=" add-to-cart">Add To Cart</a>
                     </div>

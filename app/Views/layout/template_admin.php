@@ -115,6 +115,14 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="/admin/sales" class="nav-link text-white" style="background-color: #FBC740;">
+                                <i class="nav-icon fa fa-user"></i>
+                                <p>
+                                    Sales
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="/admin/pendaftaran" class="nav-link text-white" style="background-color: #FBC740;">
                                 <i class="nav-icon fa fa-id-card"></i>
                                 <p>
@@ -382,11 +390,7 @@
                     exportOptions: {
                         columns: ':visible'
                     }
-                }, 'colvis'],
-                "columnDefs": [{
-                    targets: -1,
-                    visible: false
-                }]
+                }, 'colvis']
             });
 
             // Event listener to the two range filtering inputs to redraw on input
@@ -473,7 +477,21 @@
     </script>
     <script>
         const flashdata = $('.flash-data').data('flashdata');
+        if (flashdata == 'Anda Berhasil Login') {
+            Swal.fire(
+                'Berhasil!',
+                flashdata,
+                'success'
+            );
+        }
         if (flashdata == 'Data Pelanggan Berhasil diTambahkan') {
+            Swal.fire(
+                'Berhasil!',
+                flashdata,
+                'success'
+            );
+        }
+        if (flashdata == 'Data Sales Berhasil diTambahkan') {
             Swal.fire(
                 'Berhasil!',
                 flashdata,
@@ -487,7 +505,21 @@
                 'success'
             );
         }
+        if (flashdata == 'Data Sales Berhasil diUbah') {
+            Swal.fire(
+                'Berhasil!',
+                flashdata,
+                'success'
+            );
+        }
         if (flashdata == 'Data Pelanggan Berhasil diHapus') {
+            Swal.fire(
+                'Berhasil!',
+                flashdata,
+                'success'
+            );
+        }
+        if (flashdata == 'Data Sales Berhasil diHapus') {
             Swal.fire(
                 'Berhasil!',
                 flashdata,
