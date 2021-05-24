@@ -7,5 +7,5 @@ use CodeIgniter\Model;
 class FotoBarang extends Model
 {
     protected $table = "foto_barang";
-    protected $allowedFields = ['id_barang', 'nama_foto'];
+    protected $allowedFields = ['id_foto', 'id_barang', 'nama_foto'];
 }

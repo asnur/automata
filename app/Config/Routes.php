@@ -37,6 +37,8 @@ $routes->get('/', 'Home::index');
 $routes->delete('/pelanggan/(:any)', 'Admin::hapus_pelanggan/$1');
 $routes->delete('/pendaftaran/(:any)', 'Admin::hapus_pendaftaran/$1');
 $routes->delete('/barang/(:any)', 'Admin::hapus_barang/$1');
+$routes->delete('/foto/(:any)', 'Admin::hapus_foto/$1');
+$routes->delete('/penjualan/(:any)', 'Admin::hapus_penjualan/$1');
 $routes->put('/verif_pendaftaran', 'Admin::verifikasi_pendaftaran');
 
 

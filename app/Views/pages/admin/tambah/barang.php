@@ -58,14 +58,19 @@
                                         <!-- <center>
                                             <img src="/dist/img/find_user.png" id="blah" style="width: 120px; height:  120px; object-fit:cover; object-position: center;" class="mt-2 mb-2 img-circle">
                                         </center> -->
-                                        <input type="file" name="foto" class="form-control <?= ($validation->hasError('foto')) ? 'is-invalid' : ''; ?>">
+                                        <input type="file" id="imgInp" name="foto" class="form-control <?= ($validation->hasError('foto')) ? 'is-invalid' : ''; ?>">
                                         <div class="invalid-feedback">
                                             <?= $validation->getError('foto'); ?>
                                         </div><br>
+                                        <center>
+                                            <img src="/dist/img/cover/none.png" id="blah" style="width: 150px; height:  80px; object-fit:cover; object-position: center;" class="mt-2 mb-2">
+                                        </center><br>
                                         <label>Gallery</label><br>
-                                        <input type="file" name="fotos[]" class="form-control <?= ($validation->hasError('fotos')) ? 'is-invalid' : ''; ?>" multiple="multiple">
+                                        <input type="file" id="galleryInp" name="fotos[]" class="form-control <?= ($validation->hasError('fotos')) ? 'is-invalid' : ''; ?>" multiple="multiple">
                                         <div class="invalid-feedback">
                                             <?= $validation->getError('fotos'); ?>
+                                        </div><br>
+                                        <div class="row gallery">
                                         </div>
                                     </div>
                                     <div class="col-md-12">

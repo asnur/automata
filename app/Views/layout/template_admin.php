@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -116,7 +117,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/admin/donasi" class="nav-link text-white" style="background-color: #FBC740;">
+                            <a href="/admin/penyewaan" class="nav-link text-white" style="background-color: #FBC740;">
                                 <i class="nav-icon fa fa-money"></i>
                                 <p>
                                     Penyewaan
@@ -146,8 +147,8 @@
         $.widget.bridge('uibutton', $.ui.button)
     </script>
     <script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/plugins/moment/moment.min.js"></script>
     <script src="/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+    <script src="/plugins/moment/moment.min.js"></script>
     <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
     <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
     <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
@@ -162,7 +163,46 @@
     <script src="/plugins/select2/js/select2.full.min.js"></script>
     <script src="/plugins/moment/moment.min.js"></script>
     <script src="/plugins/fullcalendar/fullcalendar.min.js"></script>
+    <script src="/plugins/slicker/slick.js"></script>
+    <script src="https://cdn.datatables.net/datetime/1.0.3/js/dataTables.dateTime.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
     <script>
+        function detail_pembelian(iduser, idpesanan, total) {
+            $.ajax({
+                type: 'GET',
+                url: `/api/index/${iduser}/${idpesanan}`,
+                success: function(result) {
+                    // console.log(result);
+                    $('#detail_barang').html('');
+                    let item = result;
+                    let total_harga = 0;
+                    $.each(item, (i, data) => {
+                        $('#detail_barang').append(`
+                            <tr>
+                                <td class="text-center" style="vertical-align: middle;"><img src="/assets/images/item/${data.foto}" style="width: 150px; height: 150px"></td>
+                                <td class="text-center" style="vertical-align: middle;">${data.jumlah_barang}</td>
+                                <td class="text-center" style="vertical-align: middle;">Rp. ${numeral(data.harga_barang).format('0,0')}</td>
+                                <td class="text-center" style="vertical-align: middle;">Rp. ${numeral(data.subtotal).format('0,0')}</td>
+                            </tr>
+                        `);
+                    });
+                    $('#detail_barang').append(`
+                        <tr>
+                            <td class="text-left" colspan="3"><b>Total Harga</b></td>
+                            <td class="text-center"><b>Rp. ${numeral(total).format('0,0')}</b></td>
+                        </tr>
+                    `)
+                }
+            });
+        }
+        $('.gallery-isi').slick({
+            slidesToShow: 3,
+            slidesToScroll: 1,
+            autoplay: true,
+            autoplaySpeed: 2000,
+            arrows: false,
+            dots: false
+        });
         $('#summernote').summernote({
             height: 300
         });
@@ -214,67 +254,50 @@
             .trigger("change");
     </script>
     <script>
-        $(function() {
-            var oTable = $('#tableAbsen').DataTable({
-                "responsive": true,
-                "autoWidth": false
-            });
-
-
-            // $('#min').keyup(function(){
-            //     console.log($('#min').val());
-            // });
+        $(document).ready(function() {
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    var min = $('#min').datepicker("getDate");
+                    var max = $('#max').datepicker("getDate");
+                    var startDate = new Date(data[1]);
+                    if (min == null && max == null) {
+                        return true;
+                    }
+                    if (min == null && startDate <= max) {
+                        return true;
+                    }
+                    if (max == null && startDate >= min) {
+                        return true;
+                    }
+                    if (startDate <= max && startDate >= min) {
+                        return true;
+                    }
+                    return false;
+                }
+            );
 
 
             $("#min").datepicker({
-                dateFormat: "dd-mm-yy",
-                "onSelect": function(date) {
-                    minDateFilter = new Date(date).getTime();
-                    oTable.draw();
-                }
-            }).keyup(function() {
-                minDateFilter = new Date(this.value).getTime();
-                oTable.draw();
+                onSelect: function() {
+                    table.draw();
+                },
+                changeMonth: true,
+                changeYear: true
             });
-
             $("#max").datepicker({
-                dateFormat: "dd-mm-yy",
-                "onSelect": function(date) {
-                    maxDateFilter = new Date(date).getTime();
-                    oTable.draw();
-                }
-            }).keyup(function() {
-                maxDateFilter = new Date(this.value).getTime();
-                oTable.draw();
+                onSelect: function() {
+                    table.draw();
+                },
+                changeMonth: true,
+                changeYear: true
             });
+            var table = $('#tablePenjualan').DataTable();
 
+            // Event listener to the two range filtering inputs to redraw on input
+            $('#min, #max').change(function() {
+                table.draw();
+            });
         });
-
-        // Date range filter
-        minDateFilter = "";
-        maxDateFilter = "";
-
-        $.fn.dataTable.ext.search.push(
-            function(oSettings, aData, iDataIndex) {
-                if (typeof aData._date == 'undefined') {
-                    aData._date = new Date(aData[2]).getTime();
-                }
-
-                if (minDateFilter && !isNaN(minDateFilter)) {
-                    if (aData._date < minDateFilter) {
-                        return false;
-                    }
-                }
-
-                if (maxDateFilter && !isNaN(maxDateFilter)) {
-                    if (aData._date > maxDateFilter) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        );
 
         $(document).ready(function() {
             var calendar = $('#calendar').fullCalendar({
@@ -389,6 +412,13 @@
                 'success'
             );
         }
+        if (flashdata == 'Data Penjualan Berhasil diHapus') {
+            Swal.fire(
+                'Berhasil!',
+                flashdata,
+                'success'
+            );
+        }
         if (flashdata == 'Verifikasi Pendaftaran Berhasil') {
             Swal.fire(
                 'Berhasil!',
@@ -397,6 +427,13 @@
             );
         }
         if (flashdata == 'Data Barang Berhasil diTambahkan') {
+            Swal.fire(
+                'Berhasil!',
+                flashdata,
+                'success'
+            );
+        }
+        if (flashdata == 'Data Barang Berhasil diUbah') {
             Swal.fire(
                 'Berhasil!',
                 flashdata,
@@ -419,6 +456,28 @@
 
         $("#imgInp").change(function() {
             readURL(this);
+        });
+    </script>
+    <script>
+        function readURLGallery(input) {
+            if (input.files) {
+                var filesAmount = input.files.length;
+                for (let i = 0; i < filesAmount; i++) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('.gallery').append(`
+                        <div class="col-md-4 mb-2">
+                            <img src="${e.target.result}" id="gallery" style="width:80px; height:80px; object-fit:cover;">
+                        </div>
+                        `);
+                    }
+                    reader.readAsDataURL(input.files[i]);
+                }
+            }
+        }
+
+        $('#galleryInp').change(function() {
+            readURLGallery(this);
         });
     </script>
 </body>
