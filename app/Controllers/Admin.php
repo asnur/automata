@@ -20,6 +20,7 @@ class Admin extends BaseController
     protected $user;
     protected $barang;
     protected $fotoBarang;
+    protected $smtp_email;
 
     public function __construct()
     {
@@ -28,6 +29,7 @@ class Admin extends BaseController
         $this->barang = new Barang();
         $this->fotoBarang = new FotoBarang();
         $this->pesananBarang = new PesananBarang();
+        $this->smtp_email = \Config\Services::email();
     }
 
     public function index()
@@ -550,8 +552,30 @@ class Admin extends BaseController
             'izin' => 1
         ]);
 
+        $dataUser = $this->user->find($id);
+        // $this->email_smtp->setFrom("email@namadomain.com", "Nama Pengirim");
+        // $this->email_smtp->setTo($dataUser['email]);
+
+        // $this->email_smtp->setSubject("Ini subjectnya");
+        // $this->email_smtp->setMessage("Ini isi/body email");
+
+
+        // $this->email_smtp->send();
+
         session()->setFlashdata('pesan', 'Verifikasi Pendaftaran Berhasil');
         return redirect()->to('/admin/pelanggan');
+    }
+
+    public function finish_payment()
+    {
+        $json_result = file_get_contents('php://input');
+        $result = json_decode($json_result, 1);
+        if ($result['status_code'] == 200) {
+            $this->pesanan->save([
+                'id' => $result['order_id'],
+                'status' => $result['transaction_status']
+            ]);
+        }
     }
 
     public function barang()
